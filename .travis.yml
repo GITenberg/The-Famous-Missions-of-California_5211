@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: WWNwFp/g7Z25pxtd0cwyL/sau3Y+J+KGlP9pi9mSU/oMtNyLARRDwFWfxsrtFVxzZ2xUl55ydj0hw4ValgoCrJFKEcREg2plCZuDx/CdRxWE9FohwFaqORvY3pxMm8mfA2LkLo+VIrKxi/Z+/mz33pc/AoazAT5PuYR2Vs5wv/nNnWaPwvt1VmKn9f2zar8AO+JRowx6sdQ+gpyYaN5EqCb7xmOv9fGE3NdcaZXeQZHkT44719gRiLqFPMrKhLoGIDbnl0qUlXTCj5tXkohfUenBbhauJrEYx7lyw88vR/HLYnLisDLkal+vLT9WHk8FRW+vee6hbK4/ojY7BLWPQ40qZOFR2ISr++dQ/OoQjQ0dh7/lDE9FUYp/1AmpE/Kqr3V4Q781BFUmavaunDHnFPfCYgoR4BvolRhehDcv1X/ezvbDkiiwoeGe62a9lPT3fnaWLmrkdO5VTQiMIXFxh/CCJbMXuClCLF8CdWL5VdnVXHGIjKl/uPltNgLPrrXPK0YdxvnRUBHV8lecppRWR1N/uQj++PWqgLG1w5rjC+ZBgxkKZs+S/EN+S682tbNQjAU+lgQZ2RxleQpdj0YndE9RIpbD4M5MjzG7KiQ52hN4NfkRW12TixnV52z2ZLoxd0kUD8GPC6MF5z6Pj4LZGKMVpda9C9aC69TP++bf7uw=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Famous-Missions-of-California_5211
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
